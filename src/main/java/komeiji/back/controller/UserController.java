@@ -14,6 +14,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import komeiji.back.entity.HeadShot;
 import komeiji.back.entity.User;
 import komeiji.back.entity.UserClass;
 import komeiji.back.repository.UserDao;
@@ -26,7 +27,9 @@ import lombok.Setter;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -292,8 +295,41 @@ public class UserController {
 
     @GetMapping("/checkSession")
     @Operation(summary = "检查session", description = "接受客户端请求，经过拦截器检测后如果没问题则返回值，否则在拦截器中返回error")
-    public User checkSession(HttpSession session) {
-        return getUserBySession(session);
+    public Object checkSession(HttpSession session) {
+        User user = getUserBySession(session);
+        Class<?> clazz = user.getClass();
+        Map<String,Object> map = new HashMap<>();
+        Field[] filds = clazz.getDeclaredFields();
+        for(Field field : filds){
+            field.setAccessible(true);
+            try {
+                map.put(field.getName(),field.get(user));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String url = userService.getHeadShotUrl(user.getUserName());
+
+        if(url != null){
+            map.put("headShotUrl",url);
+        }
+        else{
+            map.put("headShotUrl",null);
+        }
+
+        return map;
+
+
+    }
+
+    @PostMapping("/changeHeadShot")
+    public Result<String> changeHeadShot(@RequestBody HeadShot headShot,HttpSession session)
+    {
+        if(headShot.getUserName() != session.getAttribute("LoginUser"))
+            return Result.error("-1", "用户不对应");
+        userService.changeHeadShot(headShot.getUserName(), headShot.getHeadShotUrl());
+        return Result.success("修改成功");
     }
 
     private User getUserBySession(HttpSession session) {

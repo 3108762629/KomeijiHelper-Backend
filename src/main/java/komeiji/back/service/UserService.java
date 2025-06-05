@@ -17,4 +17,7 @@ public interface UserService {
     int updateUserInfo(User user);
     User getUserById(long id);
     Boolean userNameIsLegal(String username);
+
+    void changeHeadShot(String userName,String headShotUrl);
+    String getHeadShotUrl(String userName);
 }
