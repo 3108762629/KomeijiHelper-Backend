@@ -8,6 +8,7 @@ import komeiji.back.entity.UserClass;
 import komeiji.back.repository.UserDao;
 import komeiji.back.service.ProfileService;
 import komeiji.back.utils.Result;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,19 +23,24 @@ public class ProfileController {
     @Resource
     private UserDao userDao;
 
+    @GetMapping("/queryConProfile")
+    public ConProfile queryConProfile(@RequestParam String userName,HttpSession session) {
+        return profileService.getProfile(userName);
+    }
+
     @GetMapping("/consultantProfile")
     public ConProfile getProfile(HttpSession session){
         String userName = (String) session.getAttribute("LoginUser");
         User user =  userDao.findByUserName(userName);
 
-        if(user.getUserClass() != UserClass.Assistant || user.getUserClass() != UserClass.Supervisor)
+        if(user.getUserClass() != UserClass.Assistant && user.getUserClass() != UserClass.Supervisor)
             return null;
         return profileService.getProfile(userName);
     }
 
     @PostMapping("/updateProfile")
-    public Result<String> updateProfile(ConProfile profile,HttpSession session){
-        if(profile.getUserName() != session.getAttribute("LoginUser"))
+    public Result<String> updateProfile(@RequestBody ConProfile profile, HttpSession session){
+        if(profile!= null && !profile.getUserName().equals(session.getAttribute("LoginUser")))
             return Result.error("-1","用户不匹配");
 
         profileService.updateProfile(profile);

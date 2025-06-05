@@ -299,8 +299,8 @@ public class UserController {
         User user = getUserBySession(session);
         Class<?> clazz = user.getClass();
         Map<String,Object> map = new HashMap<>();
-        Field[] filds = clazz.getDeclaredFields();
-        for(Field field : filds){
+        Field[] fields = clazz.getDeclaredFields();
+        for(Field field : fields){
             field.setAccessible(true);
             try {
                 map.put(field.getName(),field.get(user));
@@ -311,12 +311,7 @@ public class UserController {
 
         String url = userService.getHeadShotUrl(user.getUserName());
 
-        if(url != null){
-            map.put("headShotUrl",url);
-        }
-        else{
-            map.put("headShotUrl",null);
-        }
+        map.put("headShotUrl", url);
 
         return map;
 
@@ -326,10 +321,21 @@ public class UserController {
     @PostMapping("/changeHeadShot")
     public Result<String> changeHeadShot(@RequestBody HeadShot headShot,HttpSession session)
     {
-        if(headShot.getUserName() != session.getAttribute("LoginUser"))
+        if(!headShot.getUserName().equals(session.getAttribute("LoginUser")))
             return Result.error("-1", "用户不对应");
         userService.changeHeadShot(headShot.getUserName(), headShot.getHeadShotUrl());
         return Result.success("修改成功");
+    }
+
+    @GetMapping("/getHeadShotUrl")
+    public Result<String> getHeadShotUrl(HttpSession session,@RequestParam("userName") String userName){
+        String url = userService.getHeadShotUrl(userName);
+        if(url != null){
+            return Result.success(url);
+        }
+        else{
+            return Result.error("-1", "头像不存在");
+        }
     }
 
     private User getUserBySession(HttpSession session) {

@@ -46,9 +46,9 @@ public class DashBoardServiceImpl implements DashBoardService {
 
         //NOTICE 如果user为null 代表获取date当天所有的记录
         if(user == null)
-            return chatRecordDao.getOneDayTotalRecord(startDate, endDate,null);
+            return chatRecordDao.getOneDayTotalRecord(start, end,null);
 
-        return chatRecordDao.getOneDayTotalRecord(startDate, endDate,user.getUserName());
+        return chatRecordDao.getOneDayTotalRecord(start, end,user.getUserName());
 
     }
 
