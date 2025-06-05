@@ -327,6 +327,17 @@ public class UserController {
         return Result.success("修改成功");
     }
 
+    @GetMapping("/getHeadShotUrl")
+    public Result<String> getHeadShotUrl(HttpSession session,@RequestParam("userName") String userName){
+        String url = userService.getHeadShotUrl(userName);
+        if(url != null){
+            return Result.success(url);
+        }
+        else{
+            return Result.error("-1", "头像不存在");
+        }
+    }
+
     private User getUserBySession(HttpSession session) {
         Object userName = session.getAttribute("LoginUser");
         return userService.getUserByName(userName.toString());
