@@ -58,6 +58,11 @@ spring:
           starttls:
             enable: true
             required: true
+qiniu:
+  access-key: FUa0ArFJ95YQ5qiZ5xXKXdejzRxfck0MdsHlIMuE
+  secret-key: ABOj-9KML0QeUMCAjsTTQYJvWiZnAyqrHs2uqorV
+  bucket: komeiji
+  domain: http://sx8ctqaoh.hd-bkt.clouddn.com            
 
 
 swagger:
